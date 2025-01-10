@@ -1,12 +1,38 @@
 "use client";
 import { useState } from "react";
 
-type Action = "add" | "subtract" | "multiply" | "divide" | "equal" | "clear";
+// 1 % 0
+
+const numberKeys: { [key: string]: number | string } = {
+  "1": 1,
+  "2": 2,
+  "3": 3,
+  "4": 4,
+  "5": 5,
+  "6": 5,
+  "7": 7,
+  "8": 8,
+  "9": 9,
+  "0": 0,
+  ".": ".",
+};
+
+const functionKeys: { [key: string]: string } = {
+  Enter: "=",
+  "+": "+",
+  "-": "-",
+  "/": "/",
+  "*": "*",
+  "%": "%",
+  C: "C",
+  c: "c",
+};
 
 export default function Home() {
   const [display, setDisplay] = useState("0");
   const [changeDisplay, setChangeDisplay] = useState(true);
   const [firstNumber, setFirstNumber] = useState(0);
+  const [buttonFocused, setButtonFocused] = useState<string | null>(null);
 
   function updateDisplay(char: string) {
     if (changeDisplay) {
@@ -30,33 +56,48 @@ export default function Home() {
     }
   }
 
-  const [currentAction, setCurrentAction] = useState<Action | null>(null);
+  const [currentAction, setCurrentAction] = useState<string | null>(null);
 
-  function updateAction(action: Action) {
-    setFirstNumber(Number.parseFloat(display));
+  function updateAction(action: string) {
+    if (firstNumber) {
+      calculate();
+    } else {
+      setFirstNumber(Number.parseFloat(display));
+    }
     setCurrentAction(action);
     setChangeDisplay(true);
   }
 
   function calculate() {
-    const numberB = Number.parseFloat(display);
-    let result = 0;
-    if (currentAction === "add") {
-      result = firstNumber + numberB;
-    }
-    if (currentAction === "subtract") {
-      result = firstNumber - numberB;
-    }
-    if (currentAction === "multiply") {
-      result = firstNumber * numberB;
-    }
-    if (currentAction === "divide") {
-      result = firstNumber / numberB;
-    }
+    const B = Number.parseFloat(display);
+    let result = B;
+    if (firstNumber) {
+      if (currentAction === "add") {
+        result = firstNumber + B;
+      }
+      if (currentAction === "subtract") {
+        result = firstNumber - B;
+      }
+      if (currentAction === "multiply") {
+        result = firstNumber * B;
+      }
+      if (currentAction === "divide") {
+        if (B === 0) {
+          result = NaN;
+        } else {
+          result = firstNumber / B;
+        }
+      }
 
-    setFirstNumber(result);
-    setDisplay(result.toString());
-    setChangeDisplay(true);
+      setFirstNumber(result);
+      setDisplay(result.toString());
+      setChangeDisplay(true);
+    }
+  }
+
+  function getPercent() {
+    const percent = Number.parseFloat(display) / 100;
+    setDisplay(percent.toString());
   }
 
   function clear() {
@@ -66,74 +107,192 @@ export default function Home() {
     setCurrentAction(null);
   }
 
+  function mapKeyPress(event: KeyboardEvent) {
+    const { key } = event;
+
+    if (numberKeys[key]) {
+      updateDisplay(key);
+    }
+    if (functionKeys[key]) {
+      switch (key) {
+        case "+":
+          updateAction("add");
+          break;
+        case "-":
+          updateAction("subtract");
+          break;
+        case "/":
+          updateAction("divide");
+          break;
+        case "*":
+          updateAction("multiply");
+          break;
+        case "%":
+          getPercent();
+          break;
+        case "Enter":
+          if (!buttonFocused || buttonFocused === "equal") {
+            calculate();
+          }
+          break;
+        case "C":
+          clear();
+          break;
+        case "c":
+          clear();
+          break;
+      }
+    }
+  }
+
   return (
     <div className="flex h-screen max-h-screen border-2 border-gray-800">
-      <div className="flex flex-col w-full">
-        <div
-          className={`flex h-[100px] border border-cyan-500 p-2 justify-end`}
-        >
-          <p className="text-fuchsia-400 text-4xl">{display}</p>
-        </div>
-        <Spacer />
-        <div className="flex flex-row">
-          <div className="flex flex-col">
-            <div className="flex flex-row">
-              <NumberButton value="1" onClick={updateDisplay} />
-              <Spacer />
-              <NumberButton value="2" onClick={updateDisplay} />
-              <Spacer />
-              <NumberButton value="3" onClick={updateDisplay} />
-            </div>
-            <Spacer />
-            <div className="flex flex-row">
-              <NumberButton value="4" onClick={updateDisplay} />
-              <Spacer />
-              <NumberButton value="5" onClick={updateDisplay} />
-              <Spacer />
-              <NumberButton value="6" onClick={updateDisplay} />
-            </div>
-            <Spacer />
-            <div className="flex flex-row">
-              <NumberButton value="7" onClick={updateDisplay} />
-              <Spacer />
-              <NumberButton value="8" onClick={updateDisplay} />
-              <Spacer />
-              <NumberButton value="9" onClick={updateDisplay} />
-            </div>
-            <Spacer />
-            <div className="flex flex-row">
-              <NumberButton value="0" onClick={updateDisplay} />
-              <Spacer />
-              <NumberButton value="." onClick={updateDisplay} />
-              <NumberButton value="+/-" onClick={toggleNegative} />
-            </div>
+      <div
+        tabIndex={1}
+        className="flex flex-col w-full max-w-[600px]"
+        onKeyDown={(e) => mapKeyPress(e.nativeEvent)}
+      >
+        <div className="grid grid-cols-4">
+          <div
+            className={`grid h-24 col-span-4 border border-cyan-500 p-3 justify-items-end items-center`}
+          >
+            <p className="text-fuchsia-700 text-5xl font-extrabold">
+              {display}
+            </p>
           </div>
-          <Spacer />
-          <div className="flex flex-col">
-            <FunctionButton
-              display="÷"
-              action="divide"
-              onClick={updateAction}
-            />
-            <FunctionButton
-              display="×"
-              action="multiply"
-              onClick={updateAction}
-            />
-            <FunctionButton
-              display="-"
-              action="subtract"
-              onClick={updateAction}
-            />
-            <FunctionButton display="+" action="add" onClick={updateAction} />
-          </div>
-        </div>
-        <div className="flex flex-row">
-          <FunctionButton display="C" action="clear" onClick={() => clear()} />
-          <FunctionButton
+          <Button
+            type="function"
+            display="C"
+            value="clear"
+            onClick={() => clear()}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="function"
+            display="%"
+            value=""
+            onClick={() => getPercent()}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="function"
+            display="+/-"
+            value="toggleNeggative"
+            onClick={toggleNegative}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="function"
+            display="÷"
+            value="divide"
+            onClick={updateAction}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="1"
+            display="1"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="2"
+            display="2"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="3"
+            display="3"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="function"
+            display="×"
+            value="multiply"
+            onClick={updateAction}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="4"
+            display="4"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="5"
+            display="5"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="6"
+            display="6"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="function"
+            display="-"
+            value="subtract"
+            onClick={updateAction}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="7"
+            display="7"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="8"
+            display="8"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="9"
+            display="9"
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="function"
+            display="+"
+            value="add"
+            onClick={updateAction}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            value="."
+            display="."
+            onClick={updateDisplay}
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="number"
+            display="0"
+            value="0"
+            onClick={updateDisplay}
+            style="col-span-2 !aspect-auto"
+            setButtonFocused={setButtonFocused}
+          />
+          <Button
+            type="function"
             display="="
-            action="equal"
+            value="equal"
             onClick={() => calculate()}
+            setButtonFocused={setButtonFocused}
           />
         </div>
       </div>
@@ -141,13 +300,20 @@ export default function Home() {
   );
 }
 
-const buttonStyle = `p-3 h-[90px] aspect-square border content-center justify-items-center`;
-function NumberButton({
+function Button({
+  display,
   value,
   onClick,
+  style,
+  type,
+  setButtonFocused,
 }: {
+  display: string;
   value: string;
-  onClick?: (char: string) => void;
+  onClick?: (value: string) => void;
+  style?: string;
+  type?: "function" | "number";
+  setButtonFocused: (val: string | null) => void;
 }) {
   function handleClick() {
     if (onClick) {
@@ -158,38 +324,21 @@ function NumberButton({
   return (
     <button
       onClick={() => handleClick()}
-      className={`${buttonStyle} bg-pink-200 border-pink-300`}
+      className={`p-3 aspect-square border content-center justify-items-center ${
+        type === "number"
+          ? "bg-pink-200 border-pink-300 "
+          : "bg-purple-200 border-purple-300"
+      } ${style} `}
+      onFocus={() => setButtonFocused(value)}
+      onBeforeInput={() => setButtonFocused(null)}
     >
-      <p className="text-fuchsia-700 text-5xl font-extrabold">{value}</p>
+      <p
+        className={`${
+          type === "number" ? "text-fuchsia-700" : "text-fuchsia-700"
+        } text-5xl font-extrabold`}
+      >
+        {display}
+      </p>
     </button>
   );
-}
-
-function FunctionButton({
-  display,
-  action,
-  onClick,
-}: {
-  display: string;
-  action: Action;
-  onClick?: (action: Action) => void;
-}) {
-  function handleClick() {
-    if (onClick) {
-      onClick(action);
-    }
-  }
-
-  return (
-    <button
-      onClick={handleClick}
-      className={`${buttonStyle} bg-purple-200 border-purple-300`}
-    >
-      <p className="text-fuchsia-700 text-5xl font-extrabold">{display}</p>
-    </button>
-  );
-}
-
-function Spacer() {
-  return <div className="" />;
 }
