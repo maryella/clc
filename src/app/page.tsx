@@ -1,7 +1,10 @@
 "use client";
 import { useState } from "react";
 
-// 1 % 0
+// to
+// clean up - move separate code to separate files
+// edge cases
+// style output
 
 const numberKeys: { [key: string]: number | string } = {
   "1": 1,
@@ -92,6 +95,7 @@ export default function Home() {
       setFirstNumber(result);
       setDisplay(result.toString());
       setChangeDisplay(true);
+      setCurrentAction(null);
     }
   }
 
@@ -187,6 +191,7 @@ export default function Home() {
             value="divide"
             onClick={updateAction}
             setButtonFocused={setButtonFocused}
+            active={currentAction === "divide"}
           />
           <Button
             type="number"
@@ -215,6 +220,7 @@ export default function Home() {
             value="multiply"
             onClick={updateAction}
             setButtonFocused={setButtonFocused}
+            active={currentAction === "multiply"}
           />
           <Button
             type="number"
@@ -243,6 +249,7 @@ export default function Home() {
             value="subtract"
             onClick={updateAction}
             setButtonFocused={setButtonFocused}
+            active={currentAction === "subtract"}
           />
           <Button
             type="number"
@@ -271,6 +278,7 @@ export default function Home() {
             value="add"
             onClick={updateAction}
             setButtonFocused={setButtonFocused}
+            active={currentAction === "add"}
           />
           <Button
             type="number"
@@ -301,6 +309,7 @@ export default function Home() {
 }
 
 function Button({
+  active,
   display,
   value,
   onClick,
@@ -308,6 +317,7 @@ function Button({
   type,
   setButtonFocused,
 }: {
+  active?: boolean;
   display: string;
   value: string;
   onClick?: (value: string) => void;
@@ -324,21 +334,17 @@ function Button({
   return (
     <button
       onClick={() => handleClick()}
-      className={`p-3 aspect-square border content-center justify-items-center ${
+      className={`p-3 aspect-square  ${
+        active ? "border-8" : "border"
+      } content-center justify-items-center ${
         type === "number"
-          ? "bg-pink-200 border-pink-300 "
+          ? "bg-pink-200 border-pink-300"
           : "bg-purple-200 border-purple-300"
-      } ${style} `}
+      }  ${style} `}
       onFocus={() => setButtonFocused(value)}
       onBeforeInput={() => setButtonFocused(null)}
     >
-      <p
-        className={`${
-          type === "number" ? "text-fuchsia-700" : "text-fuchsia-700"
-        } text-5xl font-extrabold`}
-      >
-        {display}
-      </p>
+      <p className={`text-fuchsia-700 text-5xl font-extrabold`}>{display}</p>
     </button>
   );
 }
