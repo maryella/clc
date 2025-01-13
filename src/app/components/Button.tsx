@@ -29,8 +29,8 @@ function Button<T>({
   return (
     <button
       onClick={() => handleClick()}
-      className={`p-3 aspect-square  ${
-        active ? "border-8" : "border"
+      className={`aspect-square box-border ${
+        active ? "border-4  p-[13px]" : "border  p-[16px]"
       } content-center justify-items-center ${
         type === "number"
           ? "bg-pink-200 border-pink-300"
@@ -39,7 +39,7 @@ function Button<T>({
       onFocus={() => setButtonFocused(`${value}`)}
       onBeforeInput={() => setButtonFocused(null)}
     >
-      <p className={`text-fuchsia-700 text-5xl font-extrabold`}>{display}</p>
+      <p className={`text-fuchsia-700 text-4xl font-extrabold`}>{display}</p>
     </button>
   );
 }

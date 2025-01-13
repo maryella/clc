@@ -10,7 +10,7 @@ import { actionKeys, numberKeys, operatorKeys } from "./modules/keyMap";
 
 // to do
 // edge cases
-// style output
+// dark mode
 
 export default function Home() {
   const [display, setDisplay] = useState("0");
@@ -54,9 +54,9 @@ export default function Home() {
 
   function handleCalculate() {
     const secondNumber = Number.parseFloat(display);
+
     if (firstNumber && secondNumber && operator) {
       const result = calculate({ firstNumber, secondNumber, operator });
-
       setFirstNumber(result);
       setDisplay(result.toString());
       setChangeDisplay(true);
@@ -100,20 +100,21 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen max-h-screen border-2 border-gray-800">
+    <div className="flex h-screen max-h-screen items-center justify-center bg-slate-50">
       <div
         tabIndex={1}
-        className="flex flex-col w-full max-w-[600px]"
+        className="flex flex-col max-h-screen border-4 border-fuchsia-300 background-fuchsia-300 rounded overflow-hidden"
         onKeyDown={(e) => handleKeyPress(e.nativeEvent)}
       >
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-4 rounded-t box-border">
           <div
-            className={`grid h-24 col-span-4 border border-cyan-500 p-3 justify-items-end items-center`}
+            className={`grid h-32 md:h-40 max-h-[150px] col-span-4 p-3 justify-items-end items-end bg-fuchsia-100 border-b border-purple-300`}
           >
-            <p className="text-fuchsia-700 text-5xl font-extrabold">
+            <p className="text-fuchsia-700 text-7xl font-extrabold">
               {display}
             </p>
           </div>
+          {/* row 1 */}
           <ActionButton
             type="function"
             display="C"
@@ -143,6 +144,7 @@ export default function Home() {
             setButtonFocused={setButtonFocused}
             active={operator === "divide"}
           />
+          {/* row 2 */}
           <NumberButton
             type="number"
             value="1"
@@ -172,6 +174,7 @@ export default function Home() {
             setButtonFocused={setButtonFocused}
             active={operator === "multiply"}
           />
+          {/* row 3 */}
           <NumberButton
             type="number"
             value="4"
@@ -201,6 +204,7 @@ export default function Home() {
             setButtonFocused={setButtonFocused}
             active={operator === "subtract"}
           />
+          {/* row 4 */}
           <NumberButton
             type="number"
             value="7"
@@ -230,6 +234,7 @@ export default function Home() {
             setButtonFocused={setButtonFocused}
             active={operator === "add"}
           />
+          {/* row 5 */}
           <NumberButton
             type="number"
             value="."
