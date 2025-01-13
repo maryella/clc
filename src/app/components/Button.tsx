@@ -1,4 +1,17 @@
-function Button({
+import { Operator } from "../modules/calculate";
+import { CalculatorAction } from "../modules/keyMap";
+
+interface ButtonProps<T> {
+  active?: boolean;
+  display: string;
+  value: T;
+  onClick?: (value: T) => void;
+  style?: string;
+  type?: "function" | "number";
+  setButtonFocused: (val: string | null) => void;
+}
+
+function Button<T>({
   active,
   display,
   value,
@@ -6,15 +19,7 @@ function Button({
   style,
   type,
   setButtonFocused,
-}: {
-  active?: boolean;
-  display: string;
-  value: string;
-  onClick?: (value: string) => void;
-  style?: string;
-  type?: "function" | "number";
-  setButtonFocused: (val: string | null) => void;
-}) {
+}: ButtonProps<T>) {
   function handleClick() {
     if (onClick) {
       onClick(value);
@@ -31,7 +36,7 @@ function Button({
           ? "bg-pink-200 border-pink-300"
           : "bg-purple-200 border-purple-300"
       }  ${style} `}
-      onFocus={() => setButtonFocused(value)}
+      onFocus={() => setButtonFocused(`${value}`)}
       onBeforeInput={() => setButtonFocused(null)}
     >
       <p className={`text-fuchsia-700 text-5xl font-extrabold`}>{display}</p>
@@ -39,4 +44,16 @@ function Button({
   );
 }
 
-export { Button };
+function ActionButton(props: ButtonProps<CalculatorAction>) {
+  return <Button type="number" {...props} />;
+}
+
+function NumberButton(props: ButtonProps<string>) {
+  return <Button type="number" {...props} />;
+}
+
+function OperatorButton(props: ButtonProps<Operator>) {
+  return <Button type="function" {...props} />;
+}
+
+export { ActionButton, NumberButton, OperatorButton };

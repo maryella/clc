@@ -1,37 +1,16 @@
 "use client";
 import { useState } from "react";
-import { Button } from "./components/Button";
+import {
+  ActionButton,
+  NumberButton,
+  OperatorButton,
+} from "./components/Button";
+import { calculate, Operator } from "./modules/calculate";
+import { actionKeys, numberKeys, operatorKeys } from "./modules/keyMap";
 
-// to
-
-// clean up - move separate code to separate files
+// to do
 // edge cases
 // style output
-
-const numberKeys: { [key: string]: number | string } = {
-  "1": 1,
-  "2": 2,
-  "3": 3,
-  "4": 4,
-  "5": 5,
-  "6": 5,
-  "7": 7,
-  "8": 8,
-  "9": 9,
-  "0": 0,
-  ".": ".",
-};
-
-const functionKeys: { [key: string]: string } = {
-  Enter: "=",
-  "+": "+",
-  "-": "-",
-  "/": "/",
-  "*": "*",
-  "%": "%",
-  C: "C",
-  c: "c",
-};
 
 export default function Home() {
   const [display, setDisplay] = useState("0");
@@ -61,43 +40,27 @@ export default function Home() {
     }
   }
 
-  const [currentAction, setCurrentAction] = useState<string | null>(null);
+  const [operator, setOperator] = useState<Operator | null>(null);
 
-  function updateAction(action: string) {
+  function updateOperator(value: Operator) {
     if (firstNumber) {
-      calculate();
+      handleCalculate();
     } else {
       setFirstNumber(Number.parseFloat(display));
     }
-    setCurrentAction(action);
+    setOperator(value);
     setChangeDisplay(true);
   }
 
-  function calculate() {
+  function handleCalculate() {
     const secondNumber = Number.parseFloat(display);
-    let result = secondNumber;
-    if (firstNumber) {
-      if (currentAction === "add") {
-        result = firstNumber + secondNumber;
-      }
-      if (currentAction === "subtract") {
-        result = firstNumber - secondNumber;
-      }
-      if (currentAction === "multiply") {
-        result = firstNumber * secondNumber;
-      }
-      if (currentAction === "divide") {
-        if (secondNumber === 0) {
-          result = NaN;
-        } else {
-          result = firstNumber / secondNumber;
-        }
-      }
+    if (firstNumber && secondNumber && operator) {
+      const result = calculate({ firstNumber, secondNumber, operator });
 
       setFirstNumber(result);
       setDisplay(result.toString());
       setChangeDisplay(true);
-      setCurrentAction(null);
+      setOperator(null);
     }
   }
 
@@ -110,43 +73,28 @@ export default function Home() {
     setDisplay("0");
     setChangeDisplay(true);
     setFirstNumber(0);
-    setCurrentAction(null);
+    setOperator(null);
   }
 
-  function mapKeyPress(event: KeyboardEvent) {
+  function handleKeyPress(event: KeyboardEvent) {
     const { key } = event;
 
     if (numberKeys[key]) {
       updateDisplay(key);
-    }
-    if (functionKeys[key]) {
-      switch (key) {
-        case "+":
-          updateAction("add");
-          break;
-        case "-":
-          updateAction("subtract");
-          break;
-        case "/":
-          updateAction("divide");
-          break;
-        case "*":
-          updateAction("multiply");
-          break;
-        case "%":
-          getPercent();
-          break;
-        case "Enter":
-          if (!buttonFocused || buttonFocused === "equal") {
-            calculate();
-          }
-          break;
-        case "C":
-          clear();
-          break;
-        case "c":
-          clear();
-          break;
+    } else if (operatorKeys[key]) {
+      setOperator(operatorKeys[key]);
+    } else if (actionKeys[key]) {
+      if (key === "%") {
+        getPercent();
+      }
+      if (
+        key === "Enter" &&
+        (buttonFocused === null || buttonFocused === "enter")
+      ) {
+        handleCalculate();
+      }
+      if (key === "C" || key === "c") {
+        clear();
       }
     }
   }
@@ -156,7 +104,7 @@ export default function Home() {
       <div
         tabIndex={1}
         className="flex flex-col w-full max-w-[600px]"
-        onKeyDown={(e) => mapKeyPress(e.nativeEvent)}
+        onKeyDown={(e) => handleKeyPress(e.nativeEvent)}
       >
         <div className="grid grid-cols-4">
           <div
@@ -166,130 +114,130 @@ export default function Home() {
               {display}
             </p>
           </div>
-          <Button
+          <ActionButton
             type="function"
             display="C"
             value="clear"
             onClick={() => clear()}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <ActionButton
             type="function"
             display="%"
-            value=""
+            value="percent"
             onClick={() => getPercent()}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <ActionButton
             type="function"
             display="+/-"
-            value="toggleNeggative"
+            value="toggleNegative"
             onClick={toggleNegative}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <OperatorButton
             type="function"
             display="÷"
             value="divide"
-            onClick={updateAction}
+            onClick={updateOperator}
             setButtonFocused={setButtonFocused}
-            active={currentAction === "divide"}
+            active={operator === "divide"}
           />
-          <Button
+          <NumberButton
             type="number"
             value="1"
             display="1"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <NumberButton
             type="number"
             value="2"
             display="2"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <NumberButton
             type="number"
             value="3"
             display="3"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <OperatorButton
             type="function"
             display="×"
             value="multiply"
-            onClick={updateAction}
+            onClick={updateOperator}
             setButtonFocused={setButtonFocused}
-            active={currentAction === "multiply"}
+            active={operator === "multiply"}
           />
-          <Button
+          <NumberButton
             type="number"
             value="4"
             display="4"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <NumberButton
             type="number"
             value="5"
             display="5"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <NumberButton
             type="number"
             value="6"
             display="6"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <OperatorButton
             type="function"
             display="-"
             value="subtract"
-            onClick={updateAction}
+            onClick={updateOperator}
             setButtonFocused={setButtonFocused}
-            active={currentAction === "subtract"}
+            active={operator === "subtract"}
           />
-          <Button
+          <NumberButton
             type="number"
             value="7"
             display="7"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <NumberButton
             type="number"
             value="8"
             display="8"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <NumberButton
             type="number"
             value="9"
             display="9"
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <OperatorButton
             type="function"
             display="+"
             value="add"
-            onClick={updateAction}
+            onClick={updateOperator}
             setButtonFocused={setButtonFocused}
-            active={currentAction === "add"}
+            active={operator === "add"}
           />
-          <Button
+          <NumberButton
             type="number"
             value="."
             display="."
             onClick={updateDisplay}
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <NumberButton
             type="number"
             display="0"
             value="0"
@@ -297,11 +245,11 @@ export default function Home() {
             style="col-span-2 !aspect-auto"
             setButtonFocused={setButtonFocused}
           />
-          <Button
+          <ActionButton
             type="function"
             display="="
-            value="equal"
-            onClick={() => calculate()}
+            value="enter"
+            onClick={() => handleCalculate()}
             setButtonFocused={setButtonFocused}
           />
         </div>

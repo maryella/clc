@@ -14,12 +14,14 @@ const numberKeys: { [key: string]: number | string } = {
   ".": ".",
 };
 
-const functionKeys: { [key: string]: string } = {
-  Enter: "=",
+export type CalculatorAction = "enter" | "percent" | "clear" | "toggleNegative";
 
-  "%": "%",
-  C: "C",
-  c: "c",
+const actionKeys: { [key: string]: CalculatorAction } = {
+  Enter: "enter",
+  "%": "percent",
+  C: "clear",
+  c: "clear",
+  toggleNegative: "toggleNegative",
 };
 
 const operatorKeys: { [key: string]: Operator } = {
@@ -29,4 +31,4 @@ const operatorKeys: { [key: string]: Operator } = {
   "*": "multiply",
 };
 
-export { numberKeys, functionKeys, operatorKeys };
+export { numberKeys, actionKeys, operatorKeys };
