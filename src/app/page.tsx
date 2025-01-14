@@ -8,6 +8,7 @@ import {
 import { calculate, Operator } from "./modules/calculate";
 import { actionKeys, numberKeys, operatorKeys } from "./modules/keyMap";
 import { fontSizeMap } from "./modules/fontSizeMap";
+import { fascinateInline } from "./fonts";
 
 export default function Home() {
   const [display, setDisplay] = useState("0");
@@ -118,20 +119,28 @@ export default function Home() {
     <div className="flex h-screen max-h-screen items-center justify-center">
       <div
         tabIndex={1}
-        className="max-h-screen border-4 border-fuchsia-300 dark:border-fuchsia-600 rounded overflow-hidden"
+        className="max-h-screen border-8 border-fuchsia-300 dark:border-purple-950 rounded overflow-hidden"
         onKeyDown={(e) => handleKeyPress(e.nativeEvent)}
       >
-        <div className="flex flex-1 flex-col max-h-vh rounded-t">
+        <div className="flex flex-1 flex-col max-h-vh bg-fuchsia-300 dark:bg-purple-950 overflow-hidden">
+          <div className="py-1">
+            <p
+              className={`text-center ${fascinateInline.className} text-xl text-fuchsia-800 dark:text-fuchsia-200 `}
+            >
+              CUTE LIL CALCULATOR
+            </p>
+          </div>
           <div
-            className={`flex flex-1 h-1/4 max-w-[308px] min-h-[97px] col-span-4 p-3 justify-end items-end bg-fuchsia-100 dark:bg-fuchsia-950 border-b border-purple-300 dark:border-purple-800`}
+            className={`flex flex-1 h-1/4 max-w-[308px] min-h-[97px] col-span-4 p-3 justify-end items-end bg-fuchsia-100 dark:bg-fuchsia-900 border-b border-purple-300 dark:border-purple-800 rounded-t `}
           >
             <p
-              dir="rtl"
+              dir={displayFontSize === 1 ? "rtl" : "ltr"}
               className={`text-fuchsia-700 dark:text-fuchsia-300 text-${fontSizeMap[displayFontSize]} font-extrabold overflow-hidden truncate`}
             >
               {display}
             </p>
           </div>
+
           <div className="h-3/4 grid grid-cols-4">
             {/* row 1 */}
             <ActionButton
