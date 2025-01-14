@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActionButton,
   NumberButton,
@@ -7,6 +7,7 @@ import {
 } from "./components/Button";
 import { calculate, Operator } from "./modules/calculate";
 import { actionKeys, numberKeys, operatorKeys } from "./modules/keyMap";
+import { fontSizeMap } from "./modules/fontSizeMap";
 
 // to do
 // edge cases
@@ -15,13 +16,35 @@ import { actionKeys, numberKeys, operatorKeys } from "./modules/keyMap";
 export default function Home() {
   const [display, setDisplay] = useState("0");
   const [changeDisplay, setChangeDisplay] = useState(true);
-  const [firstNumber, setFirstNumber] = useState(0);
+  const [firstNumber, setFirstNumber] = useState<number | null>(null);
+  const [operator, setOperator] = useState<Operator | null>(null);
   const [buttonFocused, setButtonFocused] = useState<string | null>(null);
+  const [previousButtonType, setPreviousButtonType] = useState<string | null>(
+    null
+  );
+  const [displayFontSize, setDisplayFontSize] = useState(7);
+
+  useEffect(() => {
+    if (display.length > 7 && displayFontSize > 1) {
+      setDisplayFontSize(displayFontSize - 1);
+    }
+    if (display.length < 7) {
+      setDisplayFontSize(7);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [display.length]);
 
   function updateDisplay(char: string) {
+    if (char === "." && display.includes(".")) {
+      return;
+    }
     if (changeDisplay) {
       if (char === ".") {
-        setDisplay(display + char);
+        if (operator === null) {
+          setDisplay(display + char);
+        } else {
+          setDisplay(0 + char);
+        }
       } else {
         setDisplay(char);
       }
@@ -40,32 +63,29 @@ export default function Home() {
     }
   }
 
-  const [operator, setOperator] = useState<Operator | null>(null);
-
   function updateOperator(value: Operator) {
-    if (firstNumber) {
+    setOperator(value);
+    if (firstNumber && previousButtonType === "number") {
       handleCalculate();
     } else {
       setFirstNumber(Number.parseFloat(display));
+      setChangeDisplay(true);
     }
-    setOperator(value);
-    setChangeDisplay(true);
   }
 
   function handleCalculate() {
     const secondNumber = Number.parseFloat(display);
 
-    if (firstNumber && secondNumber && operator) {
+    if (firstNumber !== null && secondNumber !== null && operator) {
       const result = calculate({ firstNumber, secondNumber, operator });
       setFirstNumber(result);
-      setDisplay(result.toString());
+      setDisplay(result.toString().substring(7));
       setChangeDisplay(true);
-      setOperator(null);
     }
   }
 
   function getPercent() {
-    const percent = Number.parseFloat(display) / 100;
+    const percent = (Number.parseFloat(display) / 100).toFixed(7);
     setDisplay(percent.toString());
   }
 
@@ -78,8 +98,7 @@ export default function Home() {
 
   function handleKeyPress(event: KeyboardEvent) {
     const { key } = event;
-
-    if (numberKeys[key]) {
+    if (numberKeys[key] !== undefined) {
       updateDisplay(key);
     } else if (operatorKeys[key]) {
       setOperator(operatorKeys[key]);
@@ -103,160 +122,165 @@ export default function Home() {
     <div className="flex h-screen max-h-screen items-center justify-center bg-slate-50">
       <div
         tabIndex={1}
-        className="flex flex-col max-h-screen border-4 border-fuchsia-300 background-fuchsia-300 rounded overflow-hidden"
+        className="max-h-screen border-4 border-fuchsia-300 background-fuchsia-300 rounded overflow-hidden"
         onKeyDown={(e) => handleKeyPress(e.nativeEvent)}
       >
-        <div className="grid grid-cols-4 rounded-t box-border">
+        <div className="flex flex-1 flex-col max-h-vh rounded-t">
           <div
-            className={`grid h-32 md:h-40 max-h-[150px] col-span-4 p-3 justify-items-end items-end bg-fuchsia-100 border-b border-purple-300`}
+            className={`flex flex-1 h-1/4 max-w-[308px] min-h-[97px] col-span-4 p-3 justify-end items-end bg-fuchsia-100 border-b border-purple-300`}
           >
-            <p className="text-fuchsia-700 text-7xl font-extrabold">
+            <p
+              dir="rtl"
+              className={`text-fuchsia-700 text-${fontSizeMap[displayFontSize]} font-extrabold overflow-hidden truncate`}
+            >
               {display}
             </p>
           </div>
-          {/* row 1 */}
-          <ActionButton
-            type="function"
-            display="C"
-            value="clear"
-            onClick={() => clear()}
-            setButtonFocused={setButtonFocused}
-          />
-          <ActionButton
-            type="function"
-            display="%"
-            value="percent"
-            onClick={() => getPercent()}
-            setButtonFocused={setButtonFocused}
-          />
-          <ActionButton
-            type="function"
-            display="+/-"
-            value="toggleNegative"
-            onClick={toggleNegative}
-            setButtonFocused={setButtonFocused}
-          />
-          <OperatorButton
-            type="function"
-            display="÷"
-            value="divide"
-            onClick={updateOperator}
-            setButtonFocused={setButtonFocused}
-            active={operator === "divide"}
-          />
-          {/* row 2 */}
-          <NumberButton
-            type="number"
-            value="1"
-            display="1"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <NumberButton
-            type="number"
-            value="2"
-            display="2"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <NumberButton
-            type="number"
-            value="3"
-            display="3"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <OperatorButton
-            type="function"
-            display="×"
-            value="multiply"
-            onClick={updateOperator}
-            setButtonFocused={setButtonFocused}
-            active={operator === "multiply"}
-          />
-          {/* row 3 */}
-          <NumberButton
-            type="number"
-            value="4"
-            display="4"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <NumberButton
-            type="number"
-            value="5"
-            display="5"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <NumberButton
-            type="number"
-            value="6"
-            display="6"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <OperatorButton
-            type="function"
-            display="-"
-            value="subtract"
-            onClick={updateOperator}
-            setButtonFocused={setButtonFocused}
-            active={operator === "subtract"}
-          />
-          {/* row 4 */}
-          <NumberButton
-            type="number"
-            value="7"
-            display="7"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <NumberButton
-            type="number"
-            value="8"
-            display="8"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <NumberButton
-            type="number"
-            value="9"
-            display="9"
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <OperatorButton
-            type="function"
-            display="+"
-            value="add"
-            onClick={updateOperator}
-            setButtonFocused={setButtonFocused}
-            active={operator === "add"}
-          />
-          {/* row 5 */}
-          <NumberButton
-            type="number"
-            value="."
-            display="."
-            onClick={updateDisplay}
-            setButtonFocused={setButtonFocused}
-          />
-          <NumberButton
-            type="number"
-            display="0"
-            value="0"
-            onClick={updateDisplay}
-            style="col-span-2 !aspect-auto"
-            setButtonFocused={setButtonFocused}
-          />
-          <ActionButton
-            type="function"
-            display="="
-            value="enter"
-            onClick={() => handleCalculate()}
-            setButtonFocused={setButtonFocused}
-          />
+          <div className="h-3/4 grid grid-cols-4">
+            {/* row 1 */}
+            <ActionButton
+              display="C"
+              value="clear"
+              onClick={() => clear()}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <ActionButton
+              display="%"
+              value="percent"
+              onClick={() => getPercent()}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <ActionButton
+              display="+/-"
+              value="toggleNegative"
+              onClick={toggleNegative}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <OperatorButton
+              display="÷"
+              value="divide"
+              onClick={updateOperator}
+              setButtonFocused={setButtonFocused}
+              active={operator === "divide"}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            {/* row 2 */}
+            <NumberButton
+              value="1"
+              display="1"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <NumberButton
+              value="2"
+              display="2"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <NumberButton
+              value="3"
+              display="3"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <OperatorButton
+              display="×"
+              value="multiply"
+              onClick={updateOperator}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+              active={operator === "multiply"}
+            />
+            {/* row 3 */}
+            <NumberButton
+              value="4"
+              display="4"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <NumberButton
+              value="5"
+              display="5"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <NumberButton
+              value="6"
+              display="6"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <OperatorButton
+              display="-"
+              value="subtract"
+              onClick={updateOperator}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+              active={operator === "subtract"}
+            />
+            {/* row 4 */}
+            <NumberButton
+              value="7"
+              display="7"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <NumberButton
+              value="8"
+              display="8"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <NumberButton
+              value="9"
+              display="9"
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <OperatorButton
+              display="+"
+              value="add"
+              active={operator === "add"}
+              onClick={updateOperator}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            {/* row 5 */}
+            <NumberButton
+              value="."
+              display="."
+              onClick={updateDisplay}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+            <NumberButton
+              display="0"
+              value="0"
+              onClick={updateDisplay}
+              setPreviousButtonType={setPreviousButtonType}
+              setButtonFocused={setButtonFocused}
+              style="col-span-2 !aspect-auto"
+            />
+            <ActionButton
+              display="="
+              value="enter"
+              onClick={() => handleCalculate()}
+              setButtonFocused={setButtonFocused}
+              setPreviousButtonType={setPreviousButtonType}
+            />
+          </div>
         </div>
       </div>
     </div>

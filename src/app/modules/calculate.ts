@@ -14,22 +14,21 @@ function calculate({
   onCalculate,
 }: CalculateParameters) {
   let result = secondNumber;
-  if (firstNumber) {
-    if (operator === "add") {
-      result = firstNumber + secondNumber;
-    }
-    if (operator === "subtract") {
-      result = firstNumber - secondNumber;
-    }
-    if (operator === "multiply") {
-      result = firstNumber * secondNumber;
-    }
-    if (operator === "divide") {
-      if (secondNumber === 0) {
-        result = NaN;
-      } else {
-        result = firstNumber / secondNumber;
-      }
+
+  if (operator === "add") {
+    result = firstNumber + secondNumber;
+  }
+  if (operator === "subtract") {
+    result = firstNumber - secondNumber;
+  }
+  if (operator === "multiply") {
+    result = firstNumber * secondNumber;
+  }
+  if (operator === "divide") {
+    if (secondNumber === 0) {
+      result = NaN;
+    } else {
+      result = firstNumber / secondNumber;
     }
   }
 
