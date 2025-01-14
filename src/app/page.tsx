@@ -9,10 +9,6 @@ import { calculate, Operator } from "./modules/calculate";
 import { actionKeys, numberKeys, operatorKeys } from "./modules/keyMap";
 import { fontSizeMap } from "./modules/fontSizeMap";
 
-// to do
-// edge cases
-// dark mode
-
 export default function Home() {
   const [display, setDisplay] = useState("0");
   const [changeDisplay, setChangeDisplay] = useState(true);
@@ -119,19 +115,19 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen max-h-screen items-center justify-center bg-slate-50">
+    <div className="flex h-screen max-h-screen items-center justify-center">
       <div
         tabIndex={1}
-        className="max-h-screen border-4 border-fuchsia-300 background-fuchsia-300 rounded overflow-hidden"
+        className="max-h-screen border-4 border-fuchsia-300 dark:border-fuchsia-600 rounded overflow-hidden"
         onKeyDown={(e) => handleKeyPress(e.nativeEvent)}
       >
         <div className="flex flex-1 flex-col max-h-vh rounded-t">
           <div
-            className={`flex flex-1 h-1/4 max-w-[308px] min-h-[97px] col-span-4 p-3 justify-end items-end bg-fuchsia-100 border-b border-purple-300`}
+            className={`flex flex-1 h-1/4 max-w-[308px] min-h-[97px] col-span-4 p-3 justify-end items-end bg-fuchsia-100 dark:bg-fuchsia-950 border-b border-purple-300 dark:border-purple-800`}
           >
             <p
               dir="rtl"
-              className={`text-fuchsia-700 text-${fontSizeMap[displayFontSize]} font-extrabold overflow-hidden truncate`}
+              className={`text-fuchsia-700 dark:text-fuchsia-300 text-${fontSizeMap[displayFontSize]} font-extrabold overflow-hidden truncate`}
             >
               {display}
             </p>
