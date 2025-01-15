@@ -76,7 +76,7 @@ export default function Home() {
     if (firstNumber !== null && secondNumber !== null && operator) {
       const result = calculate({ firstNumber, secondNumber, operator });
       setFirstNumber(result);
-      setDisplay(result.toString().substring(7));
+      setDisplay(result.toString().substring(0, 7));
       setChangeDisplay(true);
     }
   }
