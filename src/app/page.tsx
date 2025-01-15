@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActionButton,
   NumberButton,
@@ -7,7 +7,7 @@ import {
 } from "./components/Button";
 import { calculate, Operator } from "./modules/calculate";
 import { actionKeys, numberKeys, operatorKeys } from "./modules/keyMap";
-import { fontSizeMap } from "./modules/fontSizeMap";
+import { getFontSize } from "./modules/getFontSize";
 import { fascinateInline } from "./fonts";
 
 export default function Home() {
@@ -19,36 +19,29 @@ export default function Home() {
   const [previousButtonType, setPreviousButtonType] = useState<string | null>(
     null
   );
-  const [displayFontSize, setDisplayFontSize] = useState(7);
-
-  useEffect(() => {
-    if (display.length > 7 && displayFontSize > 1) {
-      setDisplayFontSize(displayFontSize - 1);
-    }
-    if (display.length < 7) {
-      setDisplayFontSize(7);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [display.length]);
+  const [displayFontSize, setDisplayFontSize] = useState("text-7xl");
 
   function updateDisplay(char: string) {
     if (char === "." && display.includes(".")) {
       return;
     }
+    let result;
     if (changeDisplay) {
       if (char === ".") {
         if (operator === null) {
-          setDisplay(display + char);
+          result = display + char;
         } else {
-          setDisplay(0 + char);
+          result = 0 + char;
         }
       } else {
-        setDisplay(char);
+        result = char;
       }
       setChangeDisplay(false);
     } else {
-      setDisplay(display + char);
+      result = display + char;
     }
+    getFontSize({ length: result.length, updateFontSize: setDisplayFontSize });
+    setDisplay(result);
   }
 
   function toggleNegative() {
@@ -134,8 +127,8 @@ export default function Home() {
             className={`flex flex-1 h-1/4 max-w-[308px] min-h-[97px] col-span-4 p-3 justify-end items-end bg-fuchsia-100 dark:bg-fuchsia-900 border-b border-purple-300 dark:border-purple-800 rounded-t `}
           >
             <p
-              dir={displayFontSize === 1 ? "rtl" : "ltr"}
-              className={`text-fuchsia-700 dark:text-fuchsia-300 text-${fontSizeMap[displayFontSize]} font-extrabold overflow-hidden truncate`}
+              //   dir={displayFontSize === 1 ? "rtl" : "ltr"}
+              className={`text-fuchsia-700 dark:text-fuchsia-300 ${displayFontSize} font-extrabold overflow-hidden truncate`}
             >
               {display}
             </p>
