@@ -127,7 +127,7 @@ export default function Home() {
             className={`flex flex-1 h-1/4 max-w-[308px] min-h-[97px] col-span-4 p-3 justify-end items-end bg-fuchsia-100 dark:bg-fuchsia-900 border-b border-purple-300 dark:border-purple-800 rounded-t `}
           >
             <p
-              //   dir={displayFontSize === 1 ? "rtl" : "ltr"}
+              dir={displayFontSize === "text-xl" ? "rtl" : "ltr"}
               className={`text-fuchsia-700 dark:text-fuchsia-300 ${displayFontSize} font-extrabold overflow-hidden truncate`}
             >
               {display}
